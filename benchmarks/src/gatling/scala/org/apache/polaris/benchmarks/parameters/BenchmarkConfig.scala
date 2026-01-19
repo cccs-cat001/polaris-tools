@@ -57,6 +57,7 @@ object BenchmarkConfig {
           ccConfig.getInt("duration-in-minutes")
         ),
         ReadTreeDatasetParameters(
+          rtdConfig.getInt("namespace-concurrency"),
           rtdConfig.getInt("table-concurrency"),
           rtdConfig.getInt("view-concurrency")
         ),
@@ -92,7 +93,8 @@ object BenchmarkConfig {
       dataset.getInt("max-views"),
       dataset.getInt("columns-per-view"),
       dataset.getInt("view-properties"),
-      dataset.getString("storage-config-info")
+      dataset.getString("storage-config-info"),
+      dataset.getBoolean("mangle-names")
     )
 
     BenchmarkConfig(connectionParams, authParams, workloadParams, datasetParams)

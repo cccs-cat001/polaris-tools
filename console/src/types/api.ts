@@ -226,12 +226,98 @@ export interface CreateGenericTableRequest {
   properties?: Record<string, string>
 }
 
+export interface GenericTable {
+  name: string
+  format: string
+  "base-location"?: string
+  doc?: string
+  properties?: Record<string, string>
+}
+
+export interface LoadGenericTableResponse {
+  table: GenericTable
+}
+
+export interface GenericTableIdentifier {
+  namespace: string[]
+  name: string
+  type?: string
+  createTime?: string
+}
+
 export interface ListTablesResponse {
   identifiers: Array<{
     namespace: string[]
     name: string
   }>
   nextPageToken?: string
+}
+
+// Views
+export interface ListViewsResponse {
+  identifiers: Array<{
+    namespace: string[]
+    name: string
+  }>
+  nextPageToken?: string
+}
+
+export interface ViewSchemaField {
+  id: number
+  name: string
+  type: string
+  required: boolean
+  doc?: string
+}
+
+export interface IcebergSchema {
+  type: "struct"
+  fields: ViewSchemaField[]
+  "schema-id"?: number
+  "identifier-field-ids"?: number[]
+}
+
+export interface SQLViewRepresentation {
+  type: "sql"
+  sql: string
+  dialect: string
+}
+
+export interface ViewVersion {
+  "version-id": number
+  "timestamp-ms": number
+  "schema-id": number
+  summary: Record<string, string>
+  representations: SQLViewRepresentation[]
+  "default-namespace": string[]
+}
+
+export interface CreateViewRequest {
+  name: string
+  location?: string
+  schema: IcebergSchema
+  "view-version": ViewVersion
+  properties: Record<string, string>
+}
+
+export interface ViewMetadata {
+  "view-uuid": string
+  "format-version": number
+  location: string
+  "current-version-id": number
+  versions: ViewVersion[]
+  "version-log": Array<{
+    "version-id": number
+    "timestamp-ms": number
+  }>
+  schemas: IcebergSchema[]
+  properties?: Record<string, string>
+}
+
+export interface LoadViewResult {
+  "metadata-location": string
+  metadata: ViewMetadata
+  config?: Record<string, string>
 }
 
 // LoadTableResult - response from GET /v1/{prefix}/namespaces/{namespace}/tables/{table}

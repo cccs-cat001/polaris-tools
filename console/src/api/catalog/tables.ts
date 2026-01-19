@@ -24,6 +24,8 @@ import type {
   CreateTableRequest,
   CreateGenericTableRequest,
   LoadTableResult,
+  LoadGenericTableResponse,
+  GenericTableIdentifier,
 } from "@/types/api"
 
 /**
@@ -180,7 +182,7 @@ export const tablesApi = {
   listGeneric: async (
     prefix: string,
     namespace: string[]
-  ): Promise<Array<{ namespace: string[]; name: string; type?: string; createTime?: string }>> => {
+  ): Promise<GenericTableIdentifier[]> => {
     const namespaceStr = encodeNamespace(namespace)
     const response = await apiClient
       .getPolarisClient()
@@ -192,6 +194,26 @@ export const tablesApi = {
       ...id,
       type: "Generic",
     }))
+  },
+
+  /**
+   * Get generic table details.
+   * @param prefix - The catalog name
+   * @param namespace - Namespace array (e.g., ["accounting", "tax"])
+   * @param tableName - Table name
+   */
+  getGeneric: async (
+    prefix: string,
+    namespace: string[],
+    tableName: string
+  ): Promise<LoadGenericTableResponse> => {
+    const namespaceStr = encodeNamespace(namespace)
+    const response = await apiClient
+      .getPolarisClient()
+      .get<LoadGenericTableResponse>(
+        `/${encodeURIComponent(prefix)}/namespaces/${encodeURIComponent(namespaceStr)}/generic-tables/${encodeURIComponent(tableName)}`
+      )
+    return response.data
   },
 
   /**
@@ -213,6 +235,25 @@ export const tablesApi = {
         request
       )
     return response.data
+  },
+
+  /**
+   * Delete a generic table.
+   * @param prefix - The catalog name
+   * @param namespace - Namespace array
+   * @param tableName - Table name
+   */
+  deleteGeneric: async (
+    prefix: string,
+    namespace: string[],
+    tableName: string
+  ): Promise<void> => {
+    const namespaceStr = encodeNamespace(namespace)
+    await apiClient
+      .getPolarisClient()
+      .delete(
+        `/${encodeURIComponent(prefix)}/namespaces/${encodeURIComponent(namespaceStr)}/generic-tables/${encodeURIComponent(tableName)}`
+      )
   },
 }
 

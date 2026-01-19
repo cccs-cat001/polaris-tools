@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.polaris.benchmarks.parameters
+package org.apache.polaris.benchmarks.util
 
-/**
- * Case class to hold the parameters for the ReadTreeDataset simulation.
- *
- * @param namespaceThroughput The number of namespace operations to perform per second.
- * @param tableThroughput The number of table operations to perform per second.
- * @param viewThroughput The number of view operations to perform per second.
- */
-case class ReadTreeDatasetParameters(
-    namespaceThroughput: Int,
-    tableThroughput: Int,
-    viewThroughput: Int
-) {
-  require(namespaceThroughput >= 0, "Namespace throughput cannot be negative")
-  require(tableThroughput >= 0, "Table throughput cannot be negative")
-  require(viewThroughput >= 0, "View throughput cannot be negative")
+import java.security.MessageDigest
+
+case class Mangler(enabled: Boolean) {
+  val MD5: MessageDigest = MessageDigest.getInstance("MD5")
+
+  def maybeMangle(prefix: String, ordinal: Int): String =
+    if (enabled) {
+      MD5.digest((prefix + ordinal).getBytes()).map("%02x".format(_)).mkString
+    } else {
+      s"$prefix$ordinal"
+    }
+
+  def maybeMangleNs(ordinal: Int): String = maybeMangle("NS_", ordinal)
+  def maybeMangleTable(ordinal: Int): String = maybeMangle("T_", ordinal)
+  def maybeMangleView(ordinal: Int): String = maybeMangle("V_", ordinal)
 }

@@ -29,7 +29,7 @@ requires-python = ">=3.10,<4.0"
 license = "Apache-2.0"
 keywords = ["Apache Polaris", "Polaris", "Model Context Protocol"]
 dependencies = [
-    "fastmcp>=2.13.0.2",
+    "fastmcp>=2.13.0",
     "urllib3>=1.25.3,<3.0.0",
     "python-json-logger>=4.0.0",
     "python-dotenv>=1.2.1",
@@ -51,12 +51,14 @@ homepage = "https://polaris.apache.org/"
 repository = "https://github.com/apache/polaris-tools/"
 
 [build-system]
-requires = ["setuptools>=68.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["polaris_mcp*"]
+[tool.hatch.build.targets.sdist]
+include = ["polaris_mcp"]
+
+[tool.hatch.build.targets.wheel]
+include = ["polaris_mcp"]
 
 [[tool.uv.index]]
 name = "pypi"
