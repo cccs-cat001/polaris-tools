@@ -21,14 +21,11 @@ import axios from "axios"
 import { apiClient } from "./client"
 import { navigate } from "@/lib/navigation"
 import { REALM_HEADER_NAME } from "@/lib/constants"
+import { config } from "@/lib/config"
 import type { OAuthTokenResponse } from "@/types/api"
 
-// Always use relative URL to go through the proxy (dev server or production server)
-// This avoids CORS issues by proxying requests through the server
-// The server.ts proxy handles /api routes in production, and Vite handles them in development
-const TOKEN_URL = "/api/catalog/v1/oauth/tokens"
+const TOKEN_URL = config.OAUTH_TOKEN_URL || `${config.POLARIS_API_URL}/api/catalog/v1/oauth/tokens`
 
-// Log OAuth URL in development only
 if (import.meta.env.DEV) {
   console.log("🔐 Using OAuth token URL:", TOKEN_URL)
 }
@@ -37,13 +34,14 @@ export const authApi = {
   getToken: async (
     clientId: string,
     clientSecret: string,
+    scope: string,
     realm?: string
   ): Promise<OAuthTokenResponse> => {
     const formData = new URLSearchParams()
     formData.append("grant_type", "client_credentials")
     formData.append("client_id", clientId)
     formData.append("client_secret", clientSecret)
-    formData.append("scope", "PRINCIPAL_ROLE:ALL")
+    formData.append("scope", scope)
 
     const headers: Record<string, string> = {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -54,13 +52,9 @@ export const authApi = {
       headers[REALM_HEADER_NAME] = realm
     }
 
-    const response = await axios.post<OAuthTokenResponse>(
-      TOKEN_URL,
-      formData,
-      {
-        headers,
-      }
-    )
+    const response = await axios.post<OAuthTokenResponse>(TOKEN_URL, formData, {
+      headers,
+    })
 
     if (response.data.access_token) {
       apiClient.setAccessToken(response.data.access_token)
@@ -78,16 +72,12 @@ export const authApi = {
     formData.append("subject_token", subjectToken)
     formData.append("subject_token_type", subjectTokenType)
 
-    const response = await axios.post<OAuthTokenResponse>(
-      TOKEN_URL,
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${apiClient.getAccessToken()}`,
-        },
-      }
-    )
+    const response = await axios.post<OAuthTokenResponse>(TOKEN_URL, formData, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${apiClient.getAccessToken()}`,
+      },
+    })
 
     if (response.data.access_token) {
       apiClient.setAccessToken(response.data.access_token)
@@ -102,15 +92,11 @@ export const authApi = {
     formData.append("subject_token", accessToken)
     formData.append("subject_token_type", "urn:ietf:params:oauth:token-type:access_token")
 
-    const response = await axios.post<OAuthTokenResponse>(
-      TOKEN_URL,
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    )
+    const response = await axios.post<OAuthTokenResponse>(TOKEN_URL, formData, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
 
     if (response.data.access_token) {
       apiClient.setAccessToken(response.data.access_token)
