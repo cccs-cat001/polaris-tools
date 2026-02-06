@@ -66,6 +66,8 @@ eclipse { project { name = ideName } }
 tasks.named<RatTask>("rat").configure {
   // These are Gradle file pattern syntax
   excludes.add("**/build/**")
+  excludes.add("gradle/wrapper/gradle-wrapper*")
+  excludes.add("**/gradle/wrapper/gradle-wrapper*")
 
   excludes.add("LICENSE")
   excludes.add("NOTICE")
@@ -151,4 +153,18 @@ changelog {
     )
   )
   version.set(provider { project.version.toString() })
+}
+
+tasks.named<Wrapper>("wrapper") {
+  actions.addLast {
+    val script = scriptFile.readText()
+    val scriptLines = script.lines().toMutableList()
+
+    val insertAtLine =
+      scriptLines.indexOf("# Use the maximum available, or set MAX_FD != -1 to use that value.")
+    scriptLines.add(insertAtLine, "")
+    scriptLines.add(insertAtLine, $$". \"${APP_HOME}/gradle/gradlew-include.sh\"")
+
+    scriptFile.writeText(scriptLines.joinToString("\n"))
+  }
 }
