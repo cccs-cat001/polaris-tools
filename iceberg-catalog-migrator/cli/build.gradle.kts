@@ -169,6 +169,11 @@ val shadowJar =
     from("${projectDir}/../DISCLAIMER") { rename { "DISCLAIMER" } }
   }
 
-shadowJar { manifest { attributes["Main-Class"] = mainClassName } }
+shadowJar {
+  manifest {
+    attributes["Main-Class"] = mainClassName
+    attributes["Multi-Release"] = "true"
+  }
+}
 
 tasks.withType<Test>().configureEach { systemProperty("java.security.manager", "allow") }
