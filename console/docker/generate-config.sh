@@ -17,24 +17,28 @@
 # under the License.
 
 # Copy nginx configuration (no substitution needed since we use direct API calls)
-cp /opt/app-root/etc/nginx.d/default.conf.template /opt/app-root/etc/nginx.d/default.conf
+cp /app/app-root/etc/nginx.d/default.conf.template /app/app-root/etc/nginx.d/default.conf
 
 echo "Configured nginx for static file serving"
 
 # Generate runtime configuration from environment variables
-cat > /opt/app-root/src/config.js << EOF
+cat > /app/app-root/src/config.js << EOF
 // Runtime configuration generated from environment variables
 window.APP_CONFIG = {
   VITE_POLARIS_API_URL: '${VITE_POLARIS_API_URL}',
   VITE_POLARIS_REALM: '${VITE_POLARIS_REALM}',
   VITE_POLARIS_PRINCIPAL_SCOPE: '${VITE_POLARIS_PRINCIPAL_SCOPE}',
   VITE_OAUTH_TOKEN_URL: '${VITE_OAUTH_TOKEN_URL}',
-  VITE_POLARIS_REALM_HEADER_NAME: '${VITE_POLARIS_REALM_HEADER_NAME}'
+  VITE_POLARIS_REALM_HEADER_NAME: '${VITE_POLARIS_REALM_HEADER_NAME}',
+  VITE_OIDC_ISSUER_URL: '${VITE_OIDC_ISSUER_URL}',
+  VITE_OIDC_CLIENT_ID: '${VITE_OIDC_CLIENT_ID}',
+  VITE_OIDC_REDIRECT_URI: '${VITE_OIDC_REDIRECT_URI}',
+  VITE_OIDC_SCOPE: '${VITE_OIDC_SCOPE}'
 };
 EOF
 
 echo "Generated config.js with runtime configuration:"
-cat /opt/app-root/src/config.js
+cat /app/app-root/src/config.js
 
 # Start nginx
 exec nginx -g 'daemon off;'
